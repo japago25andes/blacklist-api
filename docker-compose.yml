@@ -1,0 +1,29 @@
+services:
+  db:
+    image: postgres:15
+    container_name: blacklist_db
+    environment:
+      POSTGRES_USER: blacklist_user
+      POSTGRES_PASSWORD: blacklist_pass
+      POSTGRES_DB: blacklist_db
+    ports:
+      - "5433:5432"  # Cambiado para evitar conflicto con PostgreSQL local
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  web:
+    build: .
+    container_name: blacklist_api
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - DATABASE_URL=postgresql://blacklist_user:blacklist_pass@db:5432/blacklist_db
+      - AUTH_TOKEN=mi_token_super_secreto
+    depends_on:
+      - db
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:
