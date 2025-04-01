@@ -9,10 +9,15 @@ COPY . .
 
 # Instala las dependencias
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Expone el puerto (Flask por defecto usa el 5000)
+ENV FLASK_APP=run.py
+
 EXPOSE 5000
 
+COPY entrypoint.sh .
+RUN chmod +x entrypoint.sh
+ENTRYPOINT ["./entrypoint.sh"]
+
 # Comando por defecto para ejecutar la aplicación
-CMD ["python", "run.py"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
