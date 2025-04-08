@@ -10,6 +10,8 @@ services:
       - "5433:5432"  # Cambiado para evitar conflicto con PostgreSQL local
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app_net
 
   web:
     build: .
@@ -24,6 +26,12 @@ services:
       - db
     volumes:
       - .:/app
+    networks:
+      - app_net
 
 volumes:
   postgres_data:
+
+networks:
+  app_net:
+    driver: bridge
