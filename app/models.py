@@ -10,4 +10,3 @@ class BlacklistedEmail(db.Model):
     blocked_reason = db.Column(db.String(255), nullable=True)
     ip_address = db.Column(db.String(45), nullable=False)  # IPv6 compatible
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
-
