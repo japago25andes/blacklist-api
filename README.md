@@ -112,3 +112,27 @@ Las variables están definidas en `docker-compose.yml` como variables de entorno
 
 - `AUTH_TOKEN`: Token estático para autorización
 - `DATABASE_URL`: Cadena de conexión PostgreSQL para SQLAlchemy
+
+---
+
+## 🧪 Ejecución de pruebas
+
+Sigue estos pasos para configurar el entorno y ejecutar las pruebas unitarias:
+
+### 1. Crea un entorno virtual
+Primero, asegúrate de tener Python instalado en tu máquina. Luego, crea y activa un entorno virtual:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate 
+```
+
+### 2. Instala las dependencias
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Ejecutar las pruebas unitarias
+```bash
+python -m unittest discover tests
+```
