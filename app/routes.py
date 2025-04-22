@@ -56,7 +56,7 @@ def check_blacklist(email):
 
     if entry:
         return jsonify({
-            "is_blacklisteds": True,
+            "is_blacklisted": True,
             "blocked_reason": entry.blocked_reason
         }), 200
     else:
