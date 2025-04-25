@@ -61,7 +61,7 @@ def check_blacklist(email):
         }), 200
     else:
         return jsonify({
-            "is_blacklisteds": False
+            "is_blacklisted": False
         }), 200
 
 @bp.route("/health")
