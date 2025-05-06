@@ -1,0 +1,36 @@
+version: 0.2
+
+env:
+  variables:
+    AWS_ACCOUNT_ID: 774305595347
+    AWS_REGION: us-east-1
+    REPO_NAME: blacklist-api
+
+phases:
+  install:
+    commands:
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+  pre_build:
+    commands:
+      - echo "Autenticando en ECR…"
+      - aws ecr get-login-password --region $AWS_REGION \
+          | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+  build:
+    commands:
+      - echo "Running unit tests..."
+      - python -m unittest discover tests
+      - echo "Construyendo imagen Docker…"
+      - docker build -t $REPO_NAME:latest .
+      - docker tag $REPO_NAME:latest $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest
+  post_build:
+    commands:
+      - echo "Pusheando imagen a ECR…"
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest
+      - printf '[{"name":"blacklist-api","imageUri":"%s"}]' \
+          $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$REPO_NAME:latest \
+          > imagedefinitions.json
+
+artifacts:
+  files:
+    - imagedefinitions.json
