@@ -64,3 +64,15 @@ aws iam put-user-policy \
 --user-name root \
 --policy-name AllowPassRoles \
 --policy-document file://pass-all-roles.json
+
+aws iam put-role-policy \
+  --role-name codepipeline-blacklist-role \
+  --policy-name AllowS3ArtifactsAccess \
+  --policy-document file://AllowPutObjectToArtifacts.json \
+  --region us-east-1
+
+aws iam put-role-policy \
+  --role-name codebuild-blacklist-role \
+  --policy-name AllowReadArtifactsFromS3 \
+  --policy-document file://AllowCodeBuildReadArtifacts.json \
+  --region us-east-1

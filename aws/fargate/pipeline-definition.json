@@ -28,7 +28,7 @@
               "Repo": "blacklist-api",
               "Branch": "main",
               "OAuthToken": "${GITHUB_PAT}",
-              "PollForSourceChanges": "false"
+              "PollForSourceChanges": "true"
             },
             "runOrder": 1
           }

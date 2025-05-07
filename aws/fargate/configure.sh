@@ -330,3 +330,9 @@ aws codepipeline create-pipeline \
   --cli-input-json file://pipeline-ready.json \
   --region $AWS_REGION
 
+
+aws codepipeline put-webhook \
+  --cli-input-json file://webhook-definition.json \
+  --region us-east-1
+  
+# https://us-east-1.webhooks.aws/trigger?t=eyJlbmNyeXB0ZWREYXRhIjoiZnJWQXh4Y05UdmFHZTUwdXAySExNN2tJdk9KdFZvdUFrTzB6Z2dQVzhVTUZwWEFidGU5L1FXLzd5U3cyTlg1ejZ2NllNTmkrSjFmNUVRQUpXSktSM1lpSk50MTI1MVJWRnduRWxsYVRPM3ovTG9WWVNMMk9lS0xiMDJWQ2lUUE5WNDN3cUZFUHlSWFhMVms2ZTV2eitlSjl0TUkyYlB0b2VydUZsYzBBREZCcVF3PT0iLCJpdlBhcmFtZXRlclNwZWMiOiJ3cVFTWUVvWHRZZTg4eEVoIiwibWF0ZXJpYWxTZXRTZXJpYWwiOjF9&v=1
