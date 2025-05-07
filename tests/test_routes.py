@@ -91,7 +91,7 @@ class RoutesTestCase(unittest.TestCase):
         # Prueba para el endpoint de salud
         response = self.client.get('/health')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data.decode('utf-8'), 'OK HELLO')
+        self.assertEqual(response.data.decode('utf-8'), 'OK')
 
 if __name__ == '__main__':
     unittest.main()

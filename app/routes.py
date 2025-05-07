@@ -64,6 +64,6 @@ def check_blacklist(email):
             "is_blacklisted": False
         }), 200
 
-@bp.route("/health")
+@bp.route("/healths")
 def health():
     return "OK", 200
