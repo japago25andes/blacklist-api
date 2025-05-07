@@ -1,0 +1,115 @@
+{
+  "pipeline": {
+    "name": "pipeline-blacklist-api",
+    "roleArn": "arn:aws:iam::774305595347:role/codepipeline-blacklist-role",
+    "artifactStore": {
+      "type": "S3",
+      "location": "blacklist-pipeline-artifacts-774305595347"
+    },
+    "stages": [
+      {
+        "name": "Source",
+        "actions": [
+          {
+            "name": "GitHub_Source",
+            "actionTypeId": {
+              "category": "Source",
+              "owner": "ThirdParty",
+              "provider": "GitHub",
+              "version": "1"
+            },
+            "outputArtifacts": [
+              {
+                "name": "SourceOutput"
+              }
+            ],
+            "configuration": {
+              "Owner": "japago25andes",
+              "Repo": "blacklist-api",
+              "Branch": "main",
+              "OAuthToken": "${GITHUB_PAT}",
+              "PollForSourceChanges": "false"
+            },
+            "runOrder": 1
+          }
+        ]
+      },
+      {
+        "name": "Test",
+        "actions": [
+          {
+            "name": "Run_Tests",
+            "actionTypeId": {
+              "category": "Build",
+              "owner": "AWS",
+              "provider": "CodeBuild",
+              "version": "1"
+            },
+            "inputArtifacts": [
+              {
+                "name": "SourceOutput"
+              }
+            ],
+            "outputArtifacts": [],
+            "configuration": {
+              "ProjectName": "test-blacklist-api"
+            },
+            "runOrder": 1
+          }
+        ]
+      },
+      {
+        "name": "Build",
+        "actions": [
+          {
+            "name": "Build_Docker",
+            "actionTypeId": {
+              "category": "Build",
+              "owner": "AWS",
+              "provider": "CodeBuild",
+              "version": "1"
+            },
+            "inputArtifacts": [
+              {
+                "name": "SourceOutput"
+              }
+            ],
+            "outputArtifacts": [
+              {
+                "name": "BuildOutput"
+              }
+            ],
+            "configuration": {
+              "ProjectName": "build-blacklist-api"
+            },
+            "runOrder": 1
+          }
+        ]
+      },
+      {
+        "name": "Deploy",
+          "actions": [
+            {
+              "name": "CodeDeploy_DeployToECS",
+              "actionTypeId": {
+                "category": "Deploy",
+                "owner": "AWS",
+                "provider": "CodeDeploy",
+                "version": "1"
+              },
+              "inputArtifacts": [
+                {
+                  "name": "BuildOutput"
+                }
+              ],
+              "configuration": {
+                "ApplicationName": "blacklist-api-cd-app",
+                "DeploymentGroupName": "blacklist-api-cd-dg"
+              },
+              "runOrder": 1
+            }
+          ]
+        }
+    ]
+  }
+}

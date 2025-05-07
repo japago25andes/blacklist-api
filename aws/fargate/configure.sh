@@ -12,6 +12,8 @@ export DB_PASSWORD=blacklist_password
 export DB_NAME=blacklist_db
 export VPC_ID=vpc-0ea87756eab16d187
 export LOG_GROUP=blacklist-api-logs
+export GITHUB_PAT="ghp_"
+
 
 export SUBNETS=$(aws ec2 describe-subnets \
   --filters Name=vpc-id,Values=$VPC_ID \
@@ -196,6 +198,13 @@ EOF
 echo "Subnets detected: $SUBNETS"
 SUBNET_CSV=$(echo $SUBNETS | tr ' ' ',')
 
+TG_BLUE_ARN=$(aws elbv2 describe-target-groups \
+  --names blacklist-tg \
+  --query "TargetGroups[0].TargetGroupArn" --output text \
+  --region $AWS_REGION)
+
+echo "Blue TG ARN (existing): $TG_BLUE_ARN"
+
 # Create the ECS service
 aws ecs create-service \
   --cluster $CLUSTER_NAME \
@@ -203,9 +212,9 @@ aws ecs create-service \
   --task-definition $TASK_FAMILY \
   --desired-count 1 \
   --launch-type FARGATE \
+  --deployment-controller type=CODE_DEPLOY \
   --network-configuration "awsvpcConfiguration={subnets=[$SUBNET_CSV],securityGroups=[$SG_TASK],assignPublicIp=ENABLED}" \
-  --load-balancers "targetGroupArn=$TG_ARN,containerName=blacklist-api,containerPort=5000" \
-  --health-check-grace-period-seconds 60 \
+  --load-balancers "targetGroupArn=$TG_BLUE_ARN,containerName=blacklist-api,containerPort=5000" \
   --region $AWS_REGION
 
 
@@ -237,22 +246,87 @@ done
 
 # ------------------- CODE PIPELINE & CODE DEPLOY --------------------------------
 
-aws codebuild import-source-credentials \
-  --server-type GITHUB \
-  --auth-type PERSONAL_ACCESS_TOKEN \
-  --token <PAT> \
+aws deploy create-application \
+  --application-name blacklist-api-cd-app \
+  --compute-platform ECS \
   --region $AWS_REGION
+
+
+TG_GREEN_ARN=$(aws elbv2 create-target-group \
+  --name blacklist-tg-green \
+  --protocol HTTP \
+  --port 5000 \
+  --vpc-id $VPC_ID \
+  --health-check-protocol HTTP \
+  --health-check-path /health \
+  --health-check-interval-seconds 30 \
+  --healthy-threshold-count 3 \
+  --unhealthy-threshold-count 2 \
+  --target-type ip \
+  --query "TargetGroups[0].TargetGroupArn" --output text \
+  --region $AWS_REGION)
+
+echo "Green TG ARN: $TG_GREEN_ARN"
+
+LISTENER_ARN=$(aws elbv2 describe-listeners \
+  --load-balancer-arn $ALB_ARN \
+  --query "Listeners[0].ListenerArn" \
+  --output text \
+  --region $AWS_REGION)
+
+echo "Listener ARN: $LISTENER_ARN"
+
+TEST_LISTENER_ARN=$(aws elbv2 create-listener \
+  --load-balancer-arn $ALB_ARN \
+  --protocol HTTP \
+  --port 81 \
+  --default-actions Type=forward,TargetGroupArn=$TG_GREEN_ARN \
+  --query "Listeners[0].ListenerArn" --output text \
+  --region $AWS_REGION)
+
+echo "Test Listener ARN (green): $TEST_LISTENER_ARN"
+
+aws deploy create-deployment-group \
+  --application-name blacklist-api-cd-app \
+  --deployment-group-name blacklist-api-cd-dg \
+  --service-role-arn arn:aws:iam::$AWS_ACCOUNT_ID:role/codedeploy-ecs-role \
+  --deployment-config-name CodeDeployDefault.ECSLinear10PercentEvery1Minutes \
+  --deployment-style deploymentType=BLUE_GREEN,deploymentOption=WITH_TRAFFIC_CONTROL \
+  --ecs-services clusterName=$CLUSTER_NAME,serviceName=$SERVICE_NAME \
+  --load-balancer "targetGroupPairInfoList=[{\
+prodTrafficRoute={listenerArns=[\"$LISTENER_ARN\"]},\
+testTrafficRoute={listenerArns=[\"$TEST_LISTENER_ARN\"]},\
+targetGroups=[{name=blacklist-tg},{name=blacklist-tg-green}]\
+}]" \
+  --blue-green-deployment-configuration file://bg-config.json \
+  --region $AWS_REGION
+
 
 # preparar el bucket para artefactos
 aws s3 mb s3://blacklist-pipeline-artifacts-$AWS_ACCOUNT_ID --region $AWS_REGION
 
+aws codebuild create-project \
+  --name test-blacklist-api \
+  --description "Run unit tests for blacklist-api" \
+  --source type=CODEPIPELINE,buildspec=buildspec-test.yml \
+  --artifacts type=CODEPIPELINE \
+  --environment type=LINUX_CONTAINER,computeType=BUILD_GENERAL1_SMALL,image=aws/codebuild/standard:7.0,privilegedMode=false \
+  --service-role arn:aws:iam::774305595347:role/codebuild-blacklist-role \
+  --region us-east-1
 
-# crear el proyecto de codebuild
 aws codebuild create-project \
   --name build-blacklist-api \
-  --description "Build y test para blacklist-api vía CodePipeline" \
-  --source type=CODEPIPELINE \
+  --description "Build Docker image for blacklist-api" \
+  --source type=CODEPIPELINE,buildspec=buildspec-build.yml \
   --artifacts type=CODEPIPELINE \
   --environment type=LINUX_CONTAINER,computeType=BUILD_GENERAL1_SMALL,image=aws/codebuild/standard:7.0,privilegedMode=true \
   --service-role arn:aws:iam::774305595347:role/codebuild-blacklist-role \
+  --region us-east-1
+
+envsubst < pipeline-definition.json > pipeline-ready.json
+
+
+aws codepipeline create-pipeline \
+  --cli-input-json file://pipeline-ready.json \
   --region $AWS_REGION
+
