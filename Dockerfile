@@ -1,5 +1,5 @@
 # Usa una imagen base de Python
-FROM python:3.11-slim
+FROM public.ecr.aws/docker/library/python:3.11-slim
 
 # Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
