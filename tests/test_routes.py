@@ -89,7 +89,7 @@ class RoutesTestCase(unittest.TestCase):
 
     def test_health_endpoint(self):
         # Prueba para el endpoint de salud
-        response = self.client.get('/healths')
+        response = self.client.get('/health')
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data.decode('utf-8'), 'OK')
 
