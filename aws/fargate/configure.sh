@@ -1,6 +1,8 @@
 export AWS_ACCOUNT_ID=774305595347
 export AWS_REGION=us-east-1
 export REPO_NAME=blacklist-api
+export REPO_OWNER=japago25andes
+export BRANCH=main
 export CLUSTER_NAME=blacklist-api-cluster
 export SERVICE_NAME=blacklist-api-service-fargate
 export TASK_FAMILY=blacklist-task-definition
@@ -18,7 +20,8 @@ export SUBNETS=$(aws ec2 describe-subnets \
   --region $AWS_REGION)
 echo "Subnets detectadas: $SUBNETS"
 
-
+export S3_BUCKET=blacklist-pipeline-artifacts-$AWS_ACCOUNT_ID
+export GITHUB_SECRET_NAME=github-token-blacklist-api
 
 # ------------------------ Create security groups for DB ----------------------------------------------
 
@@ -233,3 +236,23 @@ for subnet in $SUBNETS; do
 done
 
 # ------------------- CODE PIPELINE & CODE DEPLOY --------------------------------
+
+aws codebuild import-source-credentials \
+  --server-type GITHUB \
+  --auth-type PERSONAL_ACCESS_TOKEN \
+  --token <PAT> \
+  --region $AWS_REGION
+
+# preparar el bucket para artefactos
+aws s3 mb s3://blacklist-pipeline-artifacts-$AWS_ACCOUNT_ID --region $AWS_REGION
+
+
+# crear el proyecto de codebuild
+aws codebuild create-project \
+  --name build-blacklist-api \
+  --description "Build y test para blacklist-api vía CodePipeline" \
+  --source type=CODEPIPELINE \
+  --artifacts type=CODEPIPELINE \
+  --environment type=LINUX_CONTAINER,computeType=BUILD_GENERAL1_SMALL,image=aws/codebuild/standard:7.0,privilegedMode=true \
+  --service-role arn:aws:iam::774305595347:role/codebuild-blacklist-role \
+  --region $AWS_REGION
