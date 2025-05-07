@@ -1,9 +1,9 @@
-version: "0.0"
+version: 0.0
 Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "blacklist-task-definition"
+        TaskDefinition: "arn:aws:ecs:us-east-1:774305595347:task-definition/blacklist-task-definition:5"
         LoadBalancerInfo:
           ContainerName: "blacklist-api"
           ContainerPort: 5000
