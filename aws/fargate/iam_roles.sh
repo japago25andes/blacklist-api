@@ -76,3 +76,9 @@ aws iam put-role-policy \
   --policy-name AllowReadArtifactsFromS3 \
   --policy-document file://AllowCodeBuildReadArtifacts.json \
   --region us-east-1
+
+aws iam put-role-policy \
+--role-name codebuild-blacklist-role \
+--policy-name AllowWriteArtifactsToS3 \
+--policy-document file://AllowCodeBuildWriteArtifacts.json \
+--region us-east-1
