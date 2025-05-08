@@ -1,9 +1,29 @@
 version: 0.0
+
 Resources:
   - TargetService:
       Type: AWS::ECS::Service
       Properties:
-        TaskDefinition: "arn:aws:ecs:us-east-1:774305595347:task-definition/blacklist-task-definition:5"
+        TaskDefinition: "arn:aws:ecs:us-east-1:774305595347:task-definition/blacklist-task-definition:19"
         LoadBalancerInfo:
           ContainerName: "blacklist-api"
           ContainerPort: 5000
+
+Hooks:
+  # 1. Tras crear la versión Green: validamos que las tareas estén ACTIVAS
+  - AfterAllowTestTraffic:
+      - location: scripts/verify-green.sh
+        timeout: 300
+        runas: root
+
+  # 2. Antes de enrutar tráfico producción: hacemos un smoke-test a la ruta /health
+  - BeforeAllowTraffic:
+      - location: scripts/smoke-test.sh
+        timeout: 300
+        runas: root
+
+  # 3. Después de enrutar producción: comprobamos endpoint principal y finalizamos
+  - AfterAllowTraffic:
+      - location: scripts/verify-production.sh
+        timeout: 300
+        runas: root

@@ -12,7 +12,7 @@ export DB_PASSWORD=blacklist_password
 export DB_NAME=blacklist_db
 export VPC_ID=vpc-0ea87756eab16d187
 export LOG_GROUP=blacklist-api-logs
-export GITHUB_PAT="ghp_"
+export GITHUB_PAT="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"
 
 
 export SUBNETS=$(aws ec2 describe-subnets \
@@ -334,5 +334,6 @@ aws codepipeline create-pipeline \
 aws codepipeline put-webhook \
   --cli-input-json file://webhook-definition.json \
   --region us-east-1
-  
+
+
 # https://us-east-1.webhooks.aws/trigger?t=eyJlbmNyeXB0ZWREYXRhIjoiZnJWQXh4Y05UdmFHZTUwdXAySExNN2tJdk9KdFZvdUFrTzB6Z2dQVzhVTUZwWEFidGU5L1FXLzd5U3cyTlg1ejZ2NllNTmkrSjFmNUVRQUpXSktSM1lpSk50MTI1MVJWRnduRWxsYVRPM3ovTG9WWVNMMk9lS0xiMDJWQ2lUUE5WNDN3cUZFUHlSWFhMVms2ZTV2eitlSjl0TUkyYlB0b2VydUZsYzBBREZCcVF3PT0iLCJpdlBhcmFtZXRlclNwZWMiOiJ3cVFTWUVvWHRZZTg4eEVoIiwibWF0ZXJpYWxTZXRTZXJpYWwiOjF9&v=1
