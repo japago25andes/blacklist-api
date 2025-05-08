@@ -8,6 +8,7 @@ Este microservicio permite gestionar una **lista negra global de emails** para u
 Todo está desplegado en contenedores Docker, con PostgreSQL como base de datos y Flask como framework backend.
 
 
+
 ---
 
 ## 💡 Características principales
