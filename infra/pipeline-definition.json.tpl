@@ -24,7 +24,7 @@
               "Repo": "${REPO_NAME}",
               "Branch": "${BRANCH}",
               "OAuthToken": "${GITHUB_PAT}",
-              "PollForSourceChanges": "true"
+              "PollForSourceChanges": "false"
             },
             "runOrder": 1
           }
