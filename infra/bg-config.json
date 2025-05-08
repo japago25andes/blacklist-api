@@ -1,10 +1,10 @@
 {
   "deploymentReadyOption": {
-    "actionOnTimeout": "STOP_DEPLOYMENT",
-    "waitTimeInMinutes": 15
+    "actionOnTimeout": "CONTINUE_DEPLOYMENT",
+    "waitTimeInMinutes": 0
   },
   "terminateBlueInstancesOnDeploymentSuccess": {
     "action": "TERMINATE",
-    "terminationWaitTimeInMinutes": 5
+    "terminationWaitTimeInMinutes": 0
   }
 }
