@@ -8,12 +8,3 @@ Resources:
         LoadBalancerInfo:
           ContainerName: "blacklist-api"
           ContainerPort: 5000
-
-Hooks:
-  BeforeInstall:
-    - location: force_fail.sh
-      timeout: 60
-      runas: root
-
-TrafficRouting:
-  Type: AllAtOnce
