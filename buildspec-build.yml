@@ -24,4 +24,3 @@ artifacts:
   files:
     - imagedefinitions.json  # 📜 Definiciones de imagen para ECS
     - appspec.yaml           # 🔧 AppSpec para CodeDeploy
-    - scripts/**/*           # 📂 Hooks de despliegue
