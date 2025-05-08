@@ -5,6 +5,6 @@
   },
   "terminateBlueInstancesOnDeploymentSuccess": {
     "action": "TERMINATE",
-    "terminationWaitTimeInMinutes": 0
+    "terminationWaitTimeInMinutes": 5
   }
 }
