@@ -14,3 +14,6 @@ Hooks:
     - location: force_fail.sh
       timeout: 60
       runas: root
+
+TrafficRouting:
+  Type: AllAtOnce
