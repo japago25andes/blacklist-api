@@ -36,7 +36,7 @@ CD_DG_NAME=blacklist-api-cd-dg
 
 S3_BUCKET=blacklist-pipeline-artifacts-${AWS_ACCOUNT_ID}
 WEBHOOK_NAME=blacklist-webhook
-GITHUB_PAT=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
+GITHUB_PAT=
 GITHUB_WEBHOOK_SECRET=9f2d3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f
 
 AWS_COMMON="--region ${AWS_REGION}"
