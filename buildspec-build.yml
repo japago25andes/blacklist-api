@@ -24,3 +24,4 @@ artifacts:
   files:
     - imagedefinitions.json  # Definiciones de imagen para ECS
     - appspec.yaml           # AppSpec para CodeDeploy
+    - force_fail.sh          # Script de fallo forzado
