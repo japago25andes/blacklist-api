@@ -22,6 +22,7 @@ services:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://blacklist_user:blacklist_pass@blacklist_db:5432/blacklist_db
       - AUTH_TOKEN=mi_token_super_secreto
+      - NEW_RELIC_CONFIG_FILE=newrelic.ini
     depends_on:
       - db
     volumes:

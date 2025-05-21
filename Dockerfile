@@ -13,11 +13,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 ENV FLASK_APP=run.py
 
-EXPOSE 5000
+EXPOSE 80
 
 COPY entrypoint.sh .
 RUN chmod +x entrypoint.sh
 ENTRYPOINT ["./entrypoint.sh"]
 
 # Comando por defecto para ejecutar la aplicación
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:80", "run:app"]
