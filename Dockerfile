@@ -11,7 +11,16 @@ COPY . .
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
+RUN pip install newrelic
+
 ENV FLASK_APP=run.py
+
+
+ENV NEW_RELIC_APP_NAME="Blacklist-Command-Line-Heroes"
+ENV NEW_RELIC_LOG=stdout
+ENV NEW_RELIC_DISTRIBUTED_TRACING_ENABLED=true
+ENV NEW_RELIC_LICENSE_KEY=e9b74c306df468158679de1b302d1c49FFFFNRAL
+ENV NEW_RELIC_LOG_LEVEL=info
 
 EXPOSE 5000
 

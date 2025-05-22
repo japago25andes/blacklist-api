@@ -17,7 +17,7 @@ services:
     build: .
     container_name: blacklist_api
     ports:
-      - "80:80"
+      - "5000:5000"
     environment:
       - FLASK_ENV=development
       - DATABASE_URL=postgresql://blacklist_user:blacklist_pass@blacklist_db:5432/blacklist_db
