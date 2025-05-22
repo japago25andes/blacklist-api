@@ -21,8 +21,9 @@ DB_INSTANCE_ID=blacklist-db
 DB_USERNAME=blacklist_user
 DB_PASSWORD=blacklist_password
 DB_NAME=blacklist_db
+DB_SUBNET_GROUP=default-subnet
 
-VPC_ID=vpc-0ea87756eab16d187
+VPC_ID=vpc-03eb30188ac55dde0
 LOG_GROUP=blacklist-api-logs
 
 AUTH_TOKEN=mi_token_super_secreto
@@ -88,8 +89,8 @@ ensure_tg() {
 
 ensure_cluster() {
   local name=$1
-  # Intentamos describir el cluster
   local status
+
   status=$(aws ecs describe-clusters \
     --clusters "$name" \
     ${AWS_COMMON} \
@@ -97,16 +98,18 @@ ensure_cluster() {
     --output text 2>/dev/null || echo "NOTFOUND")
 
   if [[ "$status" == "ACTIVE" ]]; then
-    # Ya existe y está activo
-    echo "$name"
+    # Solo imprimimos el clusterName
+    aws ecs describe-clusters \
+      --clusters "$name" \
+      --query "clusters[0].clusterName" \
+      --output text ${AWS_COMMON}
   elif [[ "$status" == "INACTIVE" ]]; then
-    echo "⚠️ Cluster '$name' está INACTIVE, borrando y recreando..."
+    >&2 echo "⚠️ Cluster '$name' INACTIVE, recreando..."
     aws ecs delete-cluster --cluster "$name" ${AWS_COMMON}
     aws ecs create-cluster --cluster-name "$name" ${AWS_COMMON} \
       --query "cluster.clusterName" --output text
   else
-    # No existe
-    echo "➕ Creando cluster '$name'..."
+    >&2 echo "➕ Creando cluster '$name'..."
     aws ecs create-cluster --cluster-name "$name" ${AWS_COMMON} \
       --query "cluster.clusterName" --output text
   fi
@@ -200,6 +203,7 @@ if ! aws rds describe-db-instances --db-instance-identifier "$DB_INSTANCE_ID" ${
     --master-user-password "$DB_PASSWORD" \
     --db-name "$DB_NAME" \
     --vpc-security-group-ids "$SG_RDS" \
+    --db-subnet-group-name "$DB_SUBNET_GROUP" \
     --no-multi-az --storage-type gp2 --backup-retention-period 0 \
     ${AWS_COMMON}
   aws rds wait db-instance-available --db-instance-identifier "$DB_INSTANCE_ID" ${AWS_COMMON}
